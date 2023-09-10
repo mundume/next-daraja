@@ -1,20 +1,18 @@
 import { NextResponse } from "next/server";
-
+export const runtime = "edge";
 export async function GET() {
   const consumerKey = process.env.CONSUMER_KEY!;
   const consumerSecret = process.env.CONSUMER_SECRET!;
 
-  console.log(consumerKey, consumerSecret);
+  // console.log(consumerKey, consumerSecret);
   // Choose one depending on your development environment
   // Sandbox
-  const url =
-    "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
-
+  const url = process.env.GENERATETOKENURL!;
   try {
     const encodedCredentials = Buffer.from(
       `${consumerKey}:${consumerSecret}`
     ).toString("base64");
-    console.log(encodedCredentials);
+
     const response = await fetch(url, {
       headers: {
         Authorization: `Basic ${encodedCredentials}`,
@@ -23,8 +21,9 @@ export async function GET() {
     });
 
     const res = await response.json();
-    console.log(res);
+
     const accessToken = res.access_token;
+    console.log(accessToken);
     if (!accessToken) {
       throw new Error("No access token");
     }
