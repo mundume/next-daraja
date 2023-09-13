@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 export const runtime = "edge";
 export async function POST(req: Request) {
   const url = process.env.STKPUSHURL!;
@@ -11,21 +12,18 @@ export async function POST(req: Request) {
   console.log(stk_password);
 
   const data = await req.json();
-  const { amount, accessToken } = data;
-  console.log(amount, accessToken);
-  const headers = {
-    Authorization: `Bearer ${accessToken}`,
-    "Content-Type": "application/json",
-  };
+  const { amount, accessToken, phoneNumber } = data;
+  console.log(amount, accessToken, phoneNumber);
+
   const requestBody = {
     BusinessShortCode: shortcode,
     Password: stk_password,
     Timestamp: timestamp,
     TransactionType: "CustomerBuyGoodsOnline",
     Amount: amount,
-    PartyA: "254723080369",
+    PartyA: phoneNumber,
     PartyB: shortcode,
-    PhoneNumber: "254723080369",
+    PhoneNumber: "254114109808",
     CallBackURL: "https://yourwebsite.co.ke/callbackurl",
     AccountReference: "account",
     TransactionDesc: "test",
@@ -34,18 +32,27 @@ export async function POST(req: Request) {
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
 
       body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
-      console.log("youre fucked");
+      console.log(response.statusText);
+      return NextResponse.json("An error occurred", { status: 500 });
     }
-    return Response.json(response);
+    if (response.ok) {
+      console.log(`hurray pleb ${response.statusText}`);
+    }
+    const res = NextResponse.json(response);
+    console.log(res);
+    return res;
   } catch (error) {
     console.error(error);
-    return Response.json("An error occurred", { status: 500 });
+    return NextResponse.json("An error occurred", { status: 500 });
   }
 }
 
