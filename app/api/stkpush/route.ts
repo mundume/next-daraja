@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-export const runtime = "edge";
+import Server from "socket.io-client";
+
 export async function POST(req: Request) {
+  const io = Server("http://localhost:8000");
+
   const url = process.env.STKPUSHURL!;
   const passkey = process.env.PASSKEY!;
   const timestamp = generateTimestamp();
@@ -20,11 +23,11 @@ export async function POST(req: Request) {
     Password: stk_password,
     Timestamp: timestamp,
     TransactionType: "CustomerBuyGoodsOnline",
-    Amount: amount,
-    PartyA: phoneNumber,
-    PartyB: shortcode,
+    Amount: amount!,
+    PartyA: phoneNumber!,
+    PartyB: shortcode!,
     PhoneNumber: "254114109808",
-    CallBackURL: "https://yourwebsite.co.ke/callbackurl",
+    CallBackURL: "https://8784-154-159-254-107.ngrok-free.app/callback",
     AccountReference: "account",
     TransactionDesc: "test",
   };
@@ -46,10 +49,13 @@ export async function POST(req: Request) {
     }
     if (response.ok) {
       console.log(`hurray pleb ${response.statusText}`);
+      const data = await response.json();
+      console.log(data);
+      io.on("mpesa-response", (data) => {
+        console.log(data);
+      });
     }
-    const res = NextResponse.json(response);
-    console.log(res);
-    return res;
+    return NextResponse.json("success", { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json("An error occurred", { status: 500 });
