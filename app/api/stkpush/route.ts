@@ -1,9 +1,5 @@
 import { NextResponse } from "next/server";
-import Server from "socket.io-client";
-
 export async function POST(req: Request) {
-  const io = Server("http://localhost:8000");
-
   const url = process.env.STKPUSHURL!;
   const passkey = process.env.PASSKEY!;
   const timestamp = generateTimestamp();
@@ -26,8 +22,8 @@ export async function POST(req: Request) {
     Amount: amount!,
     PartyA: phoneNumber!,
     PartyB: shortcode!,
-    PhoneNumber: "254114109808",
-    CallBackURL: "https://8784-154-159-254-107.ngrok-free.app/callback",
+    PhoneNumber: phoneNumber!,
+    CallBackURL: "https://23d3-154-159-254-240.ngrok-free.app/api/callback",
     AccountReference: "account",
     TransactionDesc: "test",
   };
@@ -51,9 +47,6 @@ export async function POST(req: Request) {
       console.log(`hurray pleb ${response.statusText}`);
       const data = await response.json();
       console.log(data);
-      io.on("mpesa-response", (data) => {
-        console.log(data);
-      });
     }
     return NextResponse.json("success", { status: 200 });
   } catch (error) {
